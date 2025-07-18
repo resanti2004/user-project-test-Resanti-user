@@ -10,13 +10,16 @@ const useIdeasApi = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortBy, setSortBy] = useState("-published_at");
 
+  // Gunakan /api untuk kedua lingkungan karena serverless function menangani permintaan
+  const API_BASE_URL = "/api";
+
   const fetchIdeas = useCallback(
     async (page = 1, size = 10, sort = "-published_at") => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await axios.get("/api/ideas", {
+        const response = await axios.get(`${API_BASE_URL}/ideas`, {
           params: {
             "page[number]": page,
             "page[size]": size,
