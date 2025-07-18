@@ -10,24 +10,29 @@ const useIdeasApi = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortBy, setSortBy] = useState("-published_at");
 
+  // Tentukan base URL berdasarkan lingkungan
+  const API_BASE_URL =
+    process.env.NODE_ENV === "production"
+      ? "https://suitmedia-backend.suitdev.com"
+      : "/api";
+
   const fetchIdeas = useCallback(
     async (page = 1, size = 10, sort = "-published_at") => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await axios.get("/api/ideas", {
+        const response = await axios.get(`${API_BASE_URL}/ideas`, {
           params: {
             "page[number]": page,
             "page[size]": size,
-            append: ["small_image", "medium_image"], // Simplified to just 'append'
+            append: ["small_image", "medium_image"],
             sort: sort,
           },
           paramsSerializer: (params) => {
             const searchParams = new URLSearchParams();
             Object.entries(params).forEach(([key, value]) => {
               if (key === "append" && Array.isArray(value)) {
-                // Handle append array specifically
                 value.forEach((item) => searchParams.append("append[]", item));
               } else if (Array.isArray(value)) {
                 value.forEach((item) => searchParams.append(key, item));
@@ -39,9 +44,7 @@ const useIdeasApi = () => {
           },
         });
 
-        // Assuming API response structure: { data: [{ id, title, small_image, medium_image, published_at }], meta: { last_page } }
         const { data, meta } = response.data;
-
         setIdeas(data);
         setTotalPages(meta?.last_page || 1);
         setCurrentPage(page);
