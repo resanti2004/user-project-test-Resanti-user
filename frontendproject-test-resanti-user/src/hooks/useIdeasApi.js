@@ -10,19 +10,13 @@ const useIdeasApi = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortBy, setSortBy] = useState("-published_at");
 
-  // Tentukan base URL berdasarkan lingkungan
-  const API_BASE_URL =
-    process.env.NODE_ENV === "production"
-      ? "https://suitmedia-backend.suitdev.com"
-      : "/api";
-
   const fetchIdeas = useCallback(
     async (page = 1, size = 10, sort = "-published_at") => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await axios.get(`${API_BASE_URL}/ideas`, {
+        const response = await axios.get("/api/ideas", {
           params: {
             "page[number]": page,
             "page[size]": size,
@@ -52,7 +46,12 @@ const useIdeasApi = () => {
         setSortBy(sort);
       } catch (err) {
         setError("Failed to fetch ideas. Please try again later.");
-        console.error("API Error:", err);
+        console.error("API Error:", {
+          message: err.message,
+          code: err.code,
+          response: err.response?.data,
+          status: err.response?.status,
+        });
       } finally {
         setLoading(false);
       }
